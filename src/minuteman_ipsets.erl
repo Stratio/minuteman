@@ -60,7 +60,8 @@ start_link() ->
   {ok, State :: #state{}} | {ok, State :: #state{}, timeout() | hibernate} |
   {stop, Reason :: term()} | ignore).
 init([]) ->
-  minuteman_vip_events:add_sup_handler(fun(Vips) -> gen_server:call(?SERVER, {push_vips, Vips}) end),
+  lager:debug("Using ~p ms timeout for gen_server call", [erlang:list_to_integer(os:getenv("GEN_SERVER_TIMEOUT","5000"))]),
+  minuteman_vip_events:add_sup_handler(fun(Vips) -> gen_server:call(?SERVER, {push_vips, Vips}, erlang:list_to_integer(os:getenv("GEN_SERVER_TIMEOUT","5000"))) end),
   %% Clear the VIP state
   handle_push_vips([]),
   {ok, #state{}}.
